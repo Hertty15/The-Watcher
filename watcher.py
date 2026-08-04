@@ -168,7 +168,13 @@ def draw_stock_card(symbol, name):
                     st.error("No shares!", icon="😢")
                     
     except Exception:
-        st.warning(f"Could not load {name}.")
+        st.metric(label=name, value="N/A", delta="Market data unavailable.")
+        st.caption("Own: 0 shares")
+        b1, b2=st.columns(2)
+        with b1:
+            st.button("Buy", key=f"buy_{symbol}", disabled=True)
+        with b2:
+            st.button("Sell", key=f"sell_{symbol}", disabled=True)
 
 # Draw 3 cards per row
 cols = st.columns(3)
