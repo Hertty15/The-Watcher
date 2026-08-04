@@ -1,5 +1,14 @@
 import streamlit as st
 import yfinance as yf
+import time
+
+@st.cache_data(ttl=300)
+def get_price(symbol):
+    try:
+        data=yf.Ticker(symbol).history(period="5d", interval="1d")
+        return float(data["Close"].iloc[-1])
+    except Exception:
+        return None
 
 # ============================================
 # SECTION 1: BACKPACK
@@ -33,11 +42,12 @@ stocks = [
 prices = {}
 
 for symbol, name in stocks:
-    try:
-        data = yf.Ticker(symbol).history(period="5d", interval="1d")
-        prices[symbol] = float(data["Close"].iloc[-1])
-    except Exception:
-        prices[symbol] = 0
+    price=get_price(symbol)
+    if price is not None:
+        prices[symbol]=price
+    else:
+        prices[symbol]=0
+    time.sleep(0.3)
 
 # ============================================
 # SECTION 4: CALCULATE PORTFOLIO VALUE
