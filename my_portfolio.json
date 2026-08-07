@@ -1,0 +1,63 @@
+{
+  "cash": 90910.75,
+  "portfolio": {
+    "TMCV.NS": 5,
+    "RELIANCE.NS": 0,
+    "TCS.NS": 0,
+    "INFY.NS": 0,
+    "HDFCBANK.NS": 7,
+    "ZOMATO.NS": 6,
+    "SBIN.NS": 0,
+    "BHARTIARTL.NS": 0,
+    "WIPRO.NS": 0,
+    "ADANIENT.NS": 0,
+    "HINDUNILVR.NS": 0,
+    "ICICIBANK.NS": 0,
+    "AXISBANK.NS": 0,
+    "ITC.NS": 0,
+    "KOTAKBANK.NS": 0,
+    "LT.NS": 0,
+    "MARUTI.NS": 0,
+    "SUNPHARMA.NS": 0,
+    "BAJFINANCE.NS": 0,
+    "ASIANPAINT.NS": 0
+  },
+  "transactions": [
+    {
+      "time": "07 Aug 23:46",
+      "action": "BUY",
+      "symbol": "ZOMATO.NS",
+      "name": "Zomata",
+      "qty": 6,
+      "price": 279.51,
+      "total": 1677.06
+    },
+    {
+      "time": "07 Aug 23:45",
+      "action": "BUY",
+      "symbol": "HDFCBANK.NS",
+      "name": "HDFC Bank",
+      "qty": 7,
+      "price": 740.37,
+      "total": 5182.59
+    },
+    {
+      "time": "07 Aug 23:45",
+      "action": "BUY",
+      "symbol": "TMCV.NS",
+      "name": "Tata Motors",
+      "qty": 5,
+      "price": 445.92,
+      "total": 2229.6
+    }
+  ],
+  "alerts": [],
+  "watchlist": [
+    "TMCV.NS",
+    "RELIANCE.NS",
+    "TCS.NS",
+    "INFY.NS",
+    "HDFCBANK.NS",
+    "ZOMATO.NS"
+  ]
+}
