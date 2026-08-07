@@ -444,7 +444,7 @@ for i, symbol in enumerate(d["watchlist"]):
             qty_sell= st.number_input("Qty", min_value=1, max_value=d["portfolio"].get(symbol,0) or 1, value=1, key=f"se;;_qty_{symbol}", label_visibility="collapsed")
             if st.button("Sell", key=f"sell_{symbol}", use_container_width=True):
                 if d["portfolio"].get(symbol, 0) >=qty_sell:
-                    total+qty_sell * price
+                    total=qty_sell * price
                     d["cash"] += total
                     d["portfolio"][symbol] -= qty_sell
                     d["transactions"].insert(0, {
