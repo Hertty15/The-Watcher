@@ -580,6 +580,11 @@ body.light footer { color: #656d76; border-color: #d0d7de; }
 
 <div class="sep"></div>
 
+<div class="sep"></div>
+<h2 style="font-size:14px; color:#f85149; font-family:'Courier New',monospace;">> ALL_IN_MODE</h2>
+<label style="color:#6e7681; font-size:11px; font-family:'Courier New',monospace;">// cant go more in</label>
+<button class="danger-btn" onclick="yoloAllIn()" style="background-color:#a371f7; border-color:#a371f7;">BUY_EVERYTHING</button>
+
 <label style="color:#6e7681; font-size:11px; font-family:'Courier New',monospace;">// DANGER ZONE</label>
 <button class="danger-btn" onclick="resetAll()">RESET_ALL</button>
 </div>
@@ -1314,6 +1319,60 @@ console.log("portfolio:", data.portfolio);
 setTheme(getTheme());
 renderAll();
 });
+
+//ALL IN
+//buys 1 of each stock then another of each till u run out of cash
+function yoloAllIn() {
+    if (data.cash <= 0) {
+        showToast("ur already broke lol", true);
+        return;
+    }
+
+    let round = 1;
+    let totalSpent = 0;
+    let totalSharesBought = 0;
+    let boughtInRound = true;
+    const txns = [];
+
+    // keep going while we bought something in the previous round
+    while (boughtInRound) {
+        boughtInRound = false;
+        
+        for (let i = 0; i < data.watchlist.length; i++) {
+            let sym = data.watchlist[i];
+            let price = getDemoPrice(sym);
+            let cost = round * price;
+            
+            if (data.cash >= cost) {
+                data.cash -= cost;
+                data.portfolio[sym] += round;
+                totalSpent += cost;
+                totalSharesBought += round;
+                boughtInRound = true;
+                
+                txns.push({
+                    time: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+                    action: "BUY",
+                    symbol: sym,
+                    name: ALL_STOCKS[sym],
+                    qty: round,
+                    price: Math.round(price * 100) / 100,
+                    total: Math.round(cost * 100) / 100
+                });
+            }
+        }
+        
+        if (boughtInRound) round++;
+    }
+
+    // add all transactions at once
+    data.transactions = txns.reverse().concat(data.transactions);
+    saveData();
+    renderAll();
+    
+    let roundsDone = round - 1;
+    showToast(`>> YOLO COMPLETE: ${roundsDone} rounds, ₹${Math.round(totalSpent).toLocaleString('en-IN')} spent, ${totalSharesBought} shares`, false);
+}
 </script>
 </body>
 </html>
