@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvestBot</title>
+    <!-- chart.js for the pretty charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ============================================
+           SECTION 1: BASIC STYLES (i googled most of this)
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1.5rem 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+
+        /* ============================================
+           SECTION 2: PORTFOLIO SUMMARY CARDS
+           ============================================ */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.2rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card h3 {
+            font-size: 0.85rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+        }
+
+        .card .big-number {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .green { color: #10b981; }
+        .red { color: #ef4444; }
+
+        /* ============================================
+           SECTION 3: SIDEBAR + MAIN LAYOUT
+           ============================================ */
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.2rem;
+            border: 1px solid #e5e7eb;
+            height: fit-content;
+        }
+
+        .sidebar h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar label {
+            display: block;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 0.3rem;
+            margin-top: 0.8rem;
+        }
+
+        .sidebar select,
+        .sidebar input[type="number"],
+        .sidebar button {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar button {
+            background: #1f2937;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .sidebar button:hover {
+            background: #374151;
+        }
+
+        .sidebar button.danger {
+            background: #ef4444;
+        }
+
+        .sidebar button.danger:hover {
+            background: #dc2626;
+        }
+
+        .sidebar button.success {
+            background: #10b981;
+        }
+
+        .sidebar button.success:hover {
+            background: #059669;
+        }
+
+        .sidebar .alert-item {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar .alert-item button {
+            width: auto;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        .sidebar .info-box {
+            background: #dbeafe;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            color: #1e40af;
+            margin-bottom: 1rem;
+        }
+
+        /* ============================================
+           SECTION 4: CHARTS & SIGNALS
+           ============================================ */
+        .chart-section {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.2rem;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .chart-controls select,
+        .chart-controls button {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 0.9rem;
+        }
+
+        .chart-controls button {
+            background: #f3f4f6;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .chart-controls button.active {
+            background: #1f2937;
+            color: white;
+        }
+
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .signal-box {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .signal-buy { background: #d1fae5; color: #065f46; }
+        .signal-sell { background: #fee2e2; color: #991b1b; }
+        .signal-hold { background: #fef3c7; color: #92400e; }
+
+        /* ============================================
+           SECTION 5: STOCK CARDS GRID
+           ============================================ */
+        .stocks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stock-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .stock-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .stock-card.up { border-color: #10b981; }
+        .stock-card.down { border-color: #ef4444; }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .stock-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .stock-symbol {
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+
+        .stock-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stock-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stock-owned {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+
+        .trade-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .trade-row input {
+            width: 60px;
+            padding: 0.4rem;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            text-align: center;
+        }
+
+        .trade-row button {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-buy {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-buy:hover {
+            background: #059669;
+        }
+
+        .btn-sell {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-sell:hover {
+            background: #dc2626;
+        }
+
+        /* ============================================
+           SECTION 6: TRANSACTIONS
+           ============================================ */
+        .transactions-section {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.2rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .transactions-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .txn-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 0.4rem;
+        }
+
+        .txn-action {
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .txn-buy { color: #10b981; }
+        .txn-sell { color: #ef4444; }
+
+        .txn-right {
+            text-align: right;
+        }
+
+        .txn-amount {
+            font-weight: 600;
+        }
+
+        .txn-meta {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
+        .empty-state {
+            color: #9ca3af;
+            font-style: italic;
+            padding: 1rem;
+        }
+
+        /* ============================================
+           SECTION 7: TOAST NOTIFICATIONS
+           ============================================ */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: #1f2937;
+            color: white;
+            padding: 0.75rem 1.2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+        }
+
+        .toast.alert {
+            background: #f59e0b;
+            color: #1f2937;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        footer {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.85rem;
+            padding: 2rem 1rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 1.5rem 0;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+    <!-- toast notifications go here -->
+    <div class="toast-container" id="toasts"></div>
+
+    <header>
+        <div class="container">
+            <h1>InvestBot 🤖</h1>
+            <div class="subtitle">Indian stocks, paper trading, and fake money so u dont go broke</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Portfolio Summary -->
+        <div class="summary-grid" id="summary"></div>
+
+        <div class="layout">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <h2>⚙️ Settings</h2>
+                
+                <div class="info-box" id="demoBadge">Demo Mode ON — fake prices</div>
+
+                <label>Demo Mode</label>
+                <select id="demoToggle" onchange="toggleDemo()">
+                    <option value="true" selected>ON (fake data)</option>
+                    <option value="false">OFF (real data via yfinance... lol jk this is static html)</option>
+                </select>
+
+                <div class="divider"></div>
+
+                <h2>➕ Add Stock</h2>
+                <label>Pick a stock</label>
+                <select id="addStockSelect"></select>
+                <button class="success" onclick="addToWatchlist()">Add to Watchlist</button>
+
+                <div class="divider"></div>
+
+                <h2>🔔 Price Alert</h2>
+                <label>Stock</label>
+                <select id="alertStock"></select>
+                <label>Alert when</label>
+                <select id="alertDir">
+                    <option value="above">goes above</option>
+                    <option value="below">goes below</option>
+                </select>
+                <label>Target Price (₹)</label>
+                <input type="number" id="alertPrice" value="1000" min="1" step="10">
+                <button onclick="setAlert()">Set Alert</button>
+
+                <div id="alertsList"></div>
+
+                <div class="divider"></div>
+
+                <label style="color:#9ca3af; font-size:0.75rem;">Danger Zone</label>
+                <button class="danger" onclick="resetAll()">Reset Everything</button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <h2>📊 Charts & Signals</h2>
+                    <div class="chart-controls">
+                        <select id="chartStock" onchange="renderChart()"></select>
+                        <button onclick="setTimeframe('1d')" id="tf-1d" class="active">1D</button>
+                        <button onclick="setTimeframe('1wk')" id="tf-1wk">1W</button>
+                        <button onclick="setTimeframe('1mo')" id="tf-1mo">1M</button>
+                        <button onclick="setTimeframe('3mo')" id="tf-3mo">3M</button>
+                    </div>
+                    <canvas id="priceChart" height="100"></canvas>
+                    <div class="signals-grid" id="signals"></div>
+                </div>
+
+                <!-- Watchlist Grid -->
+                <h2 style="margin-bottom:1rem;">👀 Watchlist</h2>
+                <div class="stocks-grid" id="watchlist"></div>
+
+                <!-- Transactions -->
+                <div class="divider"></div>
+                <div class="transactions-section">
+                    <h2>📝 Transaction History</h2>
+                    <div id="transactions"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>InvestBot — built for learning. Not financial advice. dont sue me lol</footer>
+    </div>
+
+    <script>
+        // ============================================
+        // SECTION 1: ALL THE DATA
+        // ============================================
+        // i moved everything to javascript. no python needed.
+        // localStorage saves stuff so it doesnt disappear on refresh
+
+        const ALL_STOCKS = {
+            "TMCV.NS": "Tata Motors",
+            "RELIANCE.NS": "Reliance Industries",
+            "TCS.NS": "Tata Consultancy Services",
+            "INFY.NS": "Infosys",
+            "HDFCBANK.NS": "HDFC Bank",
+            "ZOMATO.NS": "Zomato",
+            "SBIN.NS": "State Bank of India",
+            "BHARTIARTL.NS": "Bharti Airtel",
+            "WIPRO.NS": "Wipro",
+            "ADANIENT.NS": "Adani Enterprises",
+            "HINDUNILVR.NS": "Hindustan Unilever",
+            "ICICIBANK.NS": "ICICI Bank",
+            "AXISBANK.NS": "Axis Bank",
+            "ITC.NS": "ITC",
+            "KOTAKBANK.NS": "Kotak Mahindra Bank",
+            "LT.NS": "Larsen & Toubro",
+            "MARUTI.NS": "Maruti Suzuki",
+            "SUNPHARMA.NS": "Sun Pharma",
+            "BAJFINANCE.NS": "Bajaj Finance",
+            "ASIANPAINT.NS": "Asian Paints"
+        };
+
+        // base demo prices — i just googled these approx values
+        const DEMO_BASE = {
+            "TMCV.NS": 445, "RELIANCE.NS": 1293, "TCS.NS": 2452,
+            "INFY.NS": 1158, "HDFCBANK.NS": 739, "ZOMATO.NS": 280,
+            "SBIN.NS": 620, "BHARTIARTL.NS": 1680, "WIPRO.NS": 285,
+            "ADANIENT.NS": 2450, "HINDUNILVR.NS": 2450, "ICICIBANK.NS": 1280,
+            "AXISBANK.NS": 980, "ITC.NS": 430, "KOTAKBANK.NS": 1780,
+            "LT.NS": 3580, "MARUTI.NS": 11200, "SUNPHARMA.NS": 1780,
+            "BAJFINANCE.NS": 6850, "ASIANPAINT.NS": 2350
+        };
+
+        // fake "yesterday" prices — randomised a bit
+        const DEMO_PREV = {};
+        for (let sym in DEMO_BASE) {
+            DEMO_PREV[sym] = Math.round(DEMO_BASE[sym] * (0.985 + Math.random() * 0.03) * 100) / 100;
+        }
+
+        // default data if first time
+        const DEFAULT_DATA = {
+            cash: 100000,
+            portfolio: {},
+            transactions: [],
+            alerts: [],
+            watchlist: ["TMCV.NS", "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ZOMATO.NS"]
+        };
+
+        // make sure every stock has 0 shares in portfolio
+        for (let sym in ALL_STOCKS) {
+            DEFAULT_DATA.portfolio[sym] = 0;
+        }
+
+        // ============================================
+        // SECTION 2: LOAD & SAVE
+        // ============================================
+        function loadData() {
+            const saved = localStorage.getItem("investbot_data");
+            if (saved) {
+                const data = JSON.parse(saved);
+                // make sure new stocks get added if i expand the list later
+                for (let sym in ALL_STOCKS) {
+                    if (data.portfolio[sym] === undefined) data.portfolio[sym] = 0;
+                }
+                return data;
+            }
+            return JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+
+        function saveData() {
+            localStorage.setItem("investbot_data", JSON.stringify(data));
+        }
+
+        let data = loadData();
+        let currentTimeframe = "1mo";
+        let chartInstance = null;
+
+        // ============================================
+        // SECTION 3: DEMO PRICE GENERATOR
+        // ============================================
+        // this makes fake prices that wiggle around so it looks alive
+        function getDemoPrice(symbol) {
+            const base = DEMO_BASE[symbol] || 500;
+            const wiggle = (Math.random() - 0.5) * 3;
+            return Math.round((base + wiggle) * 100) / 100;
+        }
+
+        function getDemoYesterday(symbol) {
+            return DEMO_PREV[symbol] || 500;
+        }
+
+        // generate fake chart data
+        function getDemoChart(symbol, period) {
+            const base = DEMO_BASE[symbol] || 500;
+            let points, noiseRange, startMult;
+            
+            if (period === "1d") {
+                points = 60; noiseRange = 0.8; startMult = 0.99;
+            } else if (period === "1wk") {
+                points = 7; noiseRange = 5; startMult = 0.97;
+            } else if (period === "3mo") {
+                points = 90; noiseRange = 15; startMult = 0.88;
+            } else {
+                points = 30; noiseRange = 8; startMult = 0.93;
+            }
+
+            const prices = [];
+            const labels = [];
+            const now = new Date();
+            
+            for (let i = 0; i < points; i++) {
+                const trend = base * startMult + (base - base * startMult) * (i / points);
+                const noise = (Math.random() - 0.5) * noiseRange * 2;
+                prices.push(Math.round((trend + noise) * 100) / 100);
+                
+                const d = new Date(now);
+                if (period === "1d") {
+                    d.setMinutes(d.getMinutes() - (points - i));
+                    labels.push(d.getHours() + ":" + String(d.getMinutes()).padStart(2, '0'));
+                } else {
+                    d.setDate(d.getDate() - (points - i));
+                    labels.push((d.getMonth() + 1) + "/" + d.getDate());
+                }
+            }
+            return { labels, prices };
+        }
+
+        // ============================================
+        // SECTION 4: RENDER EVERYTHING
+        // ============================================
+
+        function renderSummary() {
+            const prices = {};
+            const yesterday = {};
+            
+            data.watchlist.forEach(sym => {
+                prices[sym] = getDemoPrice(sym);
+                yesterday[sym] = getDemoYesterday(sym);
+            });
+
+            // also include owned stocks not in watchlist
+            for (let sym in data.portfolio) {
+                if (data.portfolio[sym] > 0 && !prices[sym]) {
+                    prices[sym] = getDemoPrice(sym);
+                }
+            }
+
+            let totalValue = data.cash;
+            let invested = 0;
+            
+            for (let sym in data.portfolio) {
+                const val = data.portfolio[sym] * (prices[sym] || 0);
+                totalValue += val;
+                invested += val;
+            }
+
+            const pnl = totalValue - 100000;
+            const pnlPct = (pnl / 100000) * 100;
+            const pnlClass = pnl >= 0 ? 'green' : 'red';
+            const sign = pnl >= 0 ? '+' : '';
+
+            document.getElementById('summary').innerHTML = `
+                <div class="card">
+                    <h3>Cash</h3>
+                    <div class="big-number">₹${data.cash.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                </div>
+                <div class="card">
+                    <h3>Invested</h3>
+                    <div class="big-number">₹${invested.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                </div>
+                <div class="card">
+                    <h3>Total Value</h3>
+                    <div class="big-number">₹${totalValue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                </div>
+                <div class="card">
+                    <h3>P&L (vs ₹1L start)</h3>
+                    <div class="big-number ${pnlClass}">${sign}₹${Math.abs(pnl).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                    <div class="${pnlClass}" style="font-size:0.9rem; font-weight:600;">${sign}${pnlPct.toFixed(2)}%</div>
+                </div>
+            `;
+        }
+
+        function renderWatchlist() {
+            const container = document.getElementById('watchlist');
+            container.innerHTML = '';
+
+            data.watchlist.forEach(sym => {
+                const price = getDemoPrice(sym);
+                const prev = getDemoYesterday(sym);
+                const change = price - prev;
+                const changePct = prev !== 0 ? (change / prev) * 100 : 0;
+                const shares = data.portfolio[sym] || 0;
+                const isUp = change >= 0;
+                const sign = isUp ? '+' : '-';
+                const borderClass = isUp ? 'up' : 'down';
+
+                const card = document.createElement('div');
+                card.className = `stock-card ${borderClass}`;
+                card.innerHTML = `
+                    <div class="stock-header">
+                        <div>
+                            <div class="stock-name">${ALL_STOCKS[sym]}</div>
+                            <div class="stock-symbol">${sym}</div>
+                        </div>
+                        <button onclick="removeFromWatchlist('${sym}')" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:#9ca3af;">×</button>
+                    </div>
+                    <div class="stock-price">₹${price.toFixed(2)}</div>
+                    <div class="stock-change ${isUp ? 'green' : 'red'}">
+                        ${sign}₹${Math.abs(change).toFixed(2)} (${sign}${Math.abs(changePct).toFixed(2)}%)
+                    </div>
+                    <div class="stock-owned">You own: ${shares} shares (₹${(shares * price).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})})</div>
+                    <div class="trade-row">
+                        <input type="number" id="buy-qty-${sym}" value="1" min="1" max="100">
+                        <button class="btn-buy" onclick="buyStock('${sym}')">Buy</button>
+                        <input type="number" id="sell-qty-${sym}" value="1" min="1" max="${shares || 1}">
+                        <button class="btn-sell" onclick="sellStock('${sym}')">Sell</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('transactions');
+            
+            if (data.transactions.length === 0) {
+                container.innerHTML = '<div class="empty-state">No trades yet. Go buy something!</div>';
+                return;
+            }
+
+            container.innerHTML = data.transactions.slice(0, 20).map(t => `
+                <div class="txn-row">
+                    <div>
+                        <span class="txn-action ${t.action === 'BUY' ? 'txn-buy' : 'txn-sell'}">${t.action}</span>
+                        <span>${t.qty} x ${t.name}</span>
+                    </div>
+                    <div class="txn-right">
+                        <div class="txn-amount">₹${t.total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="txn-meta">${t.time} @ ₹${t.price.toFixed(2)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAlerts() {
+            const container = document.getElementById('alertsList');
+            
+            if (data.alerts.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = '<div class="divider"></div><h2 style="font-size:1rem; margin-bottom:0.5rem;">Your Alerts</h2>' +
+                data.alerts.map((a, i) => `
+                    <div class="alert-item">
+                        <span>${ALL_STOCKS[a.symbol]} ${a.direction === 'above' ? '>' : '<'} ₹${a.target.toFixed(2)}</span>
+                        <button onclick="deleteAlert(${i})">Delete</button>
+                    </div>
+                `).join('');
+        }
+
+        function renderDropdowns() {
+            // populate add stock dropdown
+            const addSelect = document.getElementById('addStockSelect');
+            const notWatching = Object.keys(ALL_STOCKS).filter(s => !data.watchlist.includes(s));
+            addSelect.innerHTML = notWatching.map(s => `<option value="${s}">${ALL_STOCKS[s]} (${s})</option>`).join('');
+            if (notWatching.length === 0) {
+                addSelect.innerHTML = '<option>All stocks in watchlist</option>';
+                addSelect.disabled = true;
+            }
+
+            // populate chart stock dropdown
+            const chartSelect = document.getElementById('chartStock');
+            chartSelect.innerHTML = data.watchlist.map(s => `<option value="${s}">${ALL_STOCKS[s]}</option>`).join('');
+
+            // populate alert stock dropdown
+            const alertSelect = document.getElementById('alertStock');
+            alertSelect.innerHTML = data.watchlist.map(s => `<option value="${s}">${ALL_STOCKS[s]}</option>`).join('');
+        }
+
+        // ============================================
+        // SECTION 5: CHARTS (this was the hard part)
+        // ============================================
+
+        function setTimeframe(tf) {
+            currentTimeframe = tf;
+            // update button styles
+            ['1d', '1wk', '1mo', '3mo'].forEach(t => {
+                const btn = document.getElementById('tf-' + t);
+                if (btn) btn.className = t === tf ? 'active' : '';
+            });
+            renderChart();
+        }
+
+        function renderChart() {
+            const sym = document.getElementById('chartStock').value || data.watchlist[0];
+            const chartData = getDemoChart(sym, currentTimeframe);
+            
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Price',
+                        data: chartData.prices,
+                        borderColor: '#1f2937',
+                        backgroundColor: 'rgba(31, 41, 55, 0.05)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#f3f4f6' } }
+                    }
+                }
+            });
+
+            renderSignals(sym, chartData.prices);
+        }
+
+        // ============================================
+        // SECTION 6: TECHNICAL INDICATORS (math lol)
+        // ============================================
+
+        function movingAverage(prices, window) {
+            const result = [];
+            for (let i = 0; i < prices.length; i++) {
+                if (i < window - 1) {
+                    result.push(null);
+                } else {
+                    let sum = 0;
+                    for (let j = 0; j < window; j++) {
+                        sum += prices[i - j];
+                    }
+                    result.push(sum / window);
+                }
+            }
+            return result;
+        }
+
+        function computeRSI(prices) {
+            const period = 14;
+            if (prices.length < period + 1) return 50;
+            
+            let gains = 0, losses = 0;
+            for (let i = 1; i <= period; i++) {
+                const change = prices[prices.length - i] - prices[prices.length - i - 1];
+                if (change > 0) gains += change;
+                else losses += Math.abs(change);
+            }
+            
+            const avgGain = gains / period;
+            const avgLoss = losses / period;
+            if (avgLoss === 0) return 100;
+            const rs = avgGain / avgLoss;
+            return 100 - (100 / (1 + rs));
+        }
+
+        function computeMACD(prices) {
+            // simplified ema calculation
+            function ema(prices, span) {
+                const k = 2 / (span + 1);
+                const result = [prices[0]];
+                for (let i = 1; i < prices.length; i++) {
+                    result.push(prices[i] * k + result[i-1] * (1 - k));
+                }
+                return result;
+            }
+            
+            const ema12 = ema(prices, 12);
+            const ema26 = ema(prices, 26);
+            const macdLine = ema12.map((v, i) => v - ema26[i]);
+            const signalLine = ema(macdLine, 9);
+            
+            const latestMacd = macdLine[macdLine.length - 1];
+            const latestSignal = signalLine[signalLine.length - 1];
+            return { latestMacd, latestSignal };
+        }
+
+        function computeBollinger(prices) {
+            const window = 20;
+            if (prices.length < window) return { upper: 0, lower: 0 };
+            
+            let sum = 0;
+            for (let i = prices.length - window; i < prices.length; i++) {
+                sum += prices[i];
+            }
+            const ma = sum / window;
+            
+            let sqSum = 0;
+            for (let i = prices.length - window; i < prices.length; i++) {
+                sqSum += Math.pow(prices[i] - ma, 2);
+            }
+            const std = Math.sqrt(sqSum / window);
+            
+            return { upper: ma + 2 * std, lower: ma - 2 * std };
+        }
+
+        function renderSignals(sym, prices) {
+            const ma20 = movingAverage(prices, 20);
+            const ma50 = movingAverage(prices, 50);
+            
+            const latest20 = ma20[ma20.length - 1];
+            const latest50 = ma50[ma50.length - 1];
+            
+            const rsi = computeRSI(prices);
+            const macd = computeMACD(prices);
+            const bb = computeBollinger(prices);
+            const latestPrice = prices[prices.length - 1];
+
+            let crossSignal, crossClass;
+            if (latest20 > latest50) {
+                crossSignal = "🟢 Golden Cross — BUY";
+                crossClass = "signal-buy";
+            } else if (latest20 < latest50) {
+                crossSignal = "🔴 Death Cross — SELL";
+                crossClass = "signal-sell";
+            } else {
+                crossSignal = "🟡 Neutral — HOLD";
+                crossClass = "signal-hold";
+            }
+
+            let rsiSignal, rsiClass;
+            if (rsi > 70) { rsiSignal = `RSI ${rsi.toFixed(1)} — Overbought`; rsiClass = "signal-sell"; }
+            else if (rsi < 30) { rsiSignal = `RSI ${rsi.toFixed(1)} — Oversold`; rsiClass = "signal-buy"; }
+            else { rsiSignal = `RSI ${rsi.toFixed(1)} — Normal`; rsiClass = "signal-hold"; }
+
+            let macdSignal, macdClass;
+            if (macd.latestMacd > macd.latestSignal) { macdSignal = "MACD Bullish"; macdClass = "signal-buy"; }
+            else { macdSignal = "MACD Bearish"; macdClass = "signal-sell"; }
+
+            let bbSignal, bbClass;
+            if (latestPrice > bb.upper) { bbSignal = "Above Bollinger — Overbought"; bbClass = "signal-sell"; }
+            else if (latestPrice < bb.lower) { bbSignal = "Below Bollinger — Oversold"; bbClass = "signal-buy"; }
+            else { bbSignal = "Inside Bollinger Band"; bbClass = "signal-hold"; }
+
+            document.getElementById('signals').innerHTML = `
+                <div class="signal-box ${crossClass}">${crossSignal}</div>
+                <div class="signal-box ${rsiClass}">${rsiSignal}</div>
+                <div class="signal-box ${macdClass}">${macdSignal}</div>
+                <div class="signal-box ${bbClass}">${bbSignal}</div>
+            `;
+        }
+
+        // ============================================
+        // SECTION 7: TRADING FUNCTIONS
+        // ============================================
+
+        function buyStock(sym) {
+            const qtyInput = document.getElementById(`buy-qty-${sym}`);
+            const qty = parseInt(qtyInput.value) || 1;
+            const price = getDemoPrice(sym);
+            const total = qty * price;
+
+            if (data.cash >= total) {
+                data.cash -= total;
+                data.portfolio[sym] += qty;
+                data.transactions.unshift({
+                    time: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+                    action: "BUY",
+                    symbol: sym,
+                    name: ALL_STOCKS[sym],
+                    qty: qty,
+                    price: Math.round(price * 100) / 100,
+                    total: Math.round(total * 100) / 100
+                });
+                saveData();
+                renderAll();
+                showToast(`Bought ${qty} shares of ${ALL_STOCKS[sym]}`, false);
+            } else {
+                showToast("Not enough cash!", true);
+            }
+        }
+
+        function sellStock(sym) {
+            const qtyInput = document.getElementById(`sell-qty-${sym}`);
+            const qty = parseInt(qtyInput.value) || 1;
+            const price = getDemoPrice(sym);
+            const total = qty * price;
+
+            if (data.portfolio[sym] >= qty) {
+                data.cash += total;
+                data.portfolio[sym] -= qty;
+                data.transactions.unshift({
+                    time: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+                    action: "SELL",
+                    symbol: sym,
+                    name: ALL_STOCKS[sym],
+                    qty: qty,
+                    price: Math.round(price * 100) / 100,
+                    total: Math.round(total * 100) / 100
+                });
+                saveData();
+                renderAll();
+                showToast(`Sold ${qty} shares of ${ALL_STOCKS[sym]}`, false);
+            } else {
+                showToast("You dont own that many!", true);
+            }
+        }
+
+        // ============================================
+        // SECTION 8: WATCHLIST & ALERTS
+        // ============================================
+
+        function addToWatchlist() {
+            const select = document.getElementById('addStockSelect');
+            if (select.disabled) return;
+            
+            const sym = select.value;
+            if (sym && !data.watchlist.includes(sym)) {
+                data.watchlist.push(sym);
+                saveData();
+                renderAll();
+                showToast(`Added ${ALL_STOCKS[sym]} to watchlist`, false);
+            }
+        }
+
+        function removeFromWatchlist(sym) {
+            data.watchlist = data.watchlist.filter(s => s !== sym);
+            saveData();
+            renderAll();
+        }
+
+        function setAlert() {
+            const sym = document.getElementById('alertStock').value;
+            const dir = document.getElementById('alertDir').value;
+            const target = parseFloat(document.getElementById('alertPrice').value);
+            
+            if (sym && target > 0) {
+                data.alerts.push({
+                    symbol: sym,
+                    direction: dir,
+                    target: target,
+                    setTime: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+                });
+                saveData();
+                renderAlerts();
+                showToast(`Alert set for ${ALL_STOCKS[sym]}`, false);
+            }
+        }
+
+        function deleteAlert(index) {
+            data.alerts.splice(index, 1);
+            saveData();
+            renderAlerts();
+        }
+
+        function checkAlerts() {
+            let anyTriggered = false;
+            const remaining = [];
+            
+            data.alerts.forEach(alert => {
+                const price = getDemoPrice(alert.symbol);
+                let triggered = false;
+                
+                if (alert.direction === 'above' && price >= alert.target) triggered = true;
+                if (alert.direction === 'below' && price <= alert.target) triggered = true;
+                
+                if (triggered) {
+                    showToast(`🚨 ALERT: ${ALL_STOCKS[alert.symbol]} is ${alert.direction === 'above' ? 'above' : 'below'} ₹${alert.target.toFixed(2)}!`, true);
+                    anyTriggered = true;
+                } else {
+                    remaining.push(alert);
+                }
+            });
+            
+            if (anyTriggered) {
+                data.alerts = remaining;
+                saveData();
+                renderAlerts();
+            }
+        }
+
+        // ============================================
+        // SECTION 9: UTILITIES
+        // ============================================
+
+        function showToast(message, isAlert) {
+            const container = document.getElementById('toasts');
+            const toast = document.createElement('div');
+            toast.className = `toast ${isAlert ? 'alert' : ''}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleDemo() {
+            const val = document.getElementById('demoToggle').value;
+            const badge = document.getElementById('demoBadge');
+            if (val === 'true') {
+                badge.style.display = 'block';
+                badge.textContent = 'Demo Mode ON — fake prices';
+            } else {
+                badge.textContent = 'Demo Mode OFF — but this is static HTML so it still uses fake prices lol';
+            }
+        }
+
+        function resetAll() {
+            if (confirm("Are you sure? This deletes EVERYTHING.")) {
+                data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                saveData();
+                renderAll();
+                showToast("Everything reset!", false);
+            }
+        }
+
+        function renderAll() {
+            renderSummary();
+            renderWatchlist();
+            renderTransactions();
+            renderAlerts();
+            renderDropdowns();
+            renderChart();
+            checkAlerts();
+        }
+
+        // ============================================
+        // SECTION 10: START THE APP
+        // ============================================
+        // this runs when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            renderAll();
+        });
+    </script>
+</body>
+</html>
