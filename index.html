@@ -4,23 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InvestBot</title>
-    <!-- chart.js for the pretty charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* ============================================
-           SECTION 1: BASIC STYLES (i googled most of this)
-           ============================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* dark mode colors - default */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* light mode class */
+        body.light-mode {
             background: #f3f4f6;
             color: #1f2937;
-            line-height: 1.6;
         }
 
         .container {
@@ -30,25 +29,43 @@
         }
 
         header {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
             padding: 1.5rem 1rem;
             margin-bottom: 1.5rem;
         }
 
-        h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
+        body.light-mode header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
         }
 
-        .subtitle {
-            color: #6b7280;
-            font-size: 1rem;
+        .header-stuff {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* ============================================
-           SECTION 2: PORTFOLIO SUMMARY CARDS
-           ============================================ */
+        h1 { font-size: 2.2rem; font-weight: 800; margin: 0; }
+        .subtitle { color: #94a3b8; font-size: 1rem; }
+        body.light-mode .subtitle { color: #6b7280; }
+
+        .theme-btn {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        body.light-mode .theme-btn {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+
+        /* summary cards */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -57,32 +74,33 @@
         }
 
         .card {
-            background: #ffffff;
+            background: #1e293b;
             border-radius: 12px;
             padding: 1.2rem;
+            border: 1px solid #334155;
+        }
+
+        body.light-mode .card {
+            background: #ffffff;
             border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         .card h3 {
             font-size: 0.85rem;
-            color: #6b7280;
+            color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
             margin-bottom: 0.3rem;
         }
 
-        .card .big-number {
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
+        body.light-mode .card h3 { color: #6b7280; }
 
-        .green { color: #10b981; }
-        .red { color: #ef4444; }
+        .card .big-number { font-size: 1.6rem; font-weight: 700; }
+        .green { color: #34d399; }
+        .red { color: #f87171; }
+        body.light-mode .green { color: #10b981; }
+        body.light-mode .red { color: #ef4444; }
 
-        /* ============================================
-           SECTION 3: SIDEBAR + MAIN LAYOUT
-           ============================================ */
+        /* sidebar + main */
         .layout {
             display: grid;
             grid-template-columns: 280px 1fr;
@@ -90,41 +108,53 @@
         }
 
         @media (max-width: 900px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
+            .layout { grid-template-columns: 1fr; }
         }
 
         .sidebar {
-            background: #ffffff;
+            background: #1e293b;
             border-radius: 12px;
             padding: 1.2rem;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #334155;
             height: fit-content;
         }
 
-        .sidebar h2 {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
+        body.light-mode .sidebar {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
         }
+
+        .sidebar h2 { font-size: 1.1rem; margin-bottom: 1rem; }
 
         .sidebar label {
             display: block;
             font-size: 0.85rem;
-            color: #6b7280;
+            color: #94a3b8;
             margin-bottom: 0.3rem;
             margin-top: 0.8rem;
         }
 
+        body.light-mode .sidebar label { color: #6b7280; }
+
         .sidebar select,
-        .sidebar input[type="number"],
+        .sidebar input,
         .sidebar button {
             width: 100%;
             padding: 0.6rem;
             border-radius: 8px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #475569;
+            background: #334155;
+            color: #f1f5f9;
             font-size: 0.95rem;
             margin-bottom: 0.5rem;
+            box-sizing: border-box;
+        }
+
+        body.light-mode .sidebar select,
+        body.light-mode .sidebar input {
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #1f2937;
         }
 
         .sidebar button {
@@ -135,28 +165,28 @@
             font-weight: 600;
         }
 
-        .sidebar button:hover {
-            background: #374151;
+        .sidebar button:hover { background: #374151; }
+        .sidebar button.danger { background: #ef4444; }
+        .sidebar button.danger:hover { background: #dc2626; }
+        .sidebar button.success { background: #10b981; }
+        .sidebar button.success:hover { background: #059669; }
+
+        .info-box {
+            background: #1e3a8a;
+            color: #93c5fd;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
         }
 
-        .sidebar button.danger {
-            background: #ef4444;
+        body.light-mode .info-box {
+            background: #dbeafe;
+            color: #1e40af;
         }
 
-        .sidebar button.danger:hover {
-            background: #dc2626;
-        }
-
-        .sidebar button.success {
-            background: #10b981;
-        }
-
-        .sidebar button.success:hover {
-            background: #059669;
-        }
-
-        .sidebar .alert-item {
-            background: #fef3c7;
+        .alert-item {
+            background: #451a03;
             border-left: 4px solid #f59e0b;
             padding: 0.5rem 0.75rem;
             border-radius: 0 8px 8px 0;
@@ -167,37 +197,32 @@
             align-items: center;
         }
 
-        .sidebar .alert-item button {
+        body.light-mode .alert-item {
+            background: #fef3c7;
+        }
+
+        .alert-item button {
             width: auto;
             padding: 0.2rem 0.5rem;
             font-size: 0.75rem;
             margin: 0;
         }
 
-        .sidebar .info-box {
-            background: #dbeafe;
-            border-radius: 8px;
-            padding: 0.75rem;
-            font-size: 0.85rem;
-            color: #1e40af;
-            margin-bottom: 1rem;
-        }
-
-        /* ============================================
-           SECTION 4: CHARTS & SIGNALS
-           ============================================ */
+        /* chart section */
         .chart-section {
-            background: #ffffff;
+            background: #1e293b;
             border-radius: 12px;
             padding: 1.2rem;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #334155;
             margin-bottom: 1.5rem;
         }
 
-        .chart-section h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
+        body.light-mode .chart-section {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
         }
+
+        .chart-section h2 { font-size: 1.2rem; margin-bottom: 1rem; }
 
         .chart-controls {
             display: flex;
@@ -211,19 +236,35 @@
         .chart-controls button {
             padding: 0.5rem 1rem;
             border-radius: 8px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #475569;
+            background: #334155;
+            color: #f1f5f9;
             font-size: 0.9rem;
+            cursor: pointer;
         }
 
-        .chart-controls button {
+        body.light-mode .chart-controls select,
+        body.light-mode .chart-controls button {
+            border: 1px solid #d1d5db;
             background: #f3f4f6;
-            cursor: pointer;
-            font-weight: 600;
+            color: #1f2937;
         }
 
         .chart-controls button.active {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        body.light-mode .chart-controls button.active {
             background: #1f2937;
-            color: white;
+            color: #ffffff;
+        }
+
+        /* THIS IS THE FIX - keeps chart at 300px tall */
+        .chart-box {
+            height: 300px;
+            position: relative;
+            width: 100%;
         }
 
         .signals-grid {
@@ -241,13 +282,15 @@
             text-align: center;
         }
 
-        .signal-buy { background: #d1fae5; color: #065f46; }
-        .signal-sell { background: #fee2e2; color: #991b1b; }
-        .signal-hold { background: #fef3c7; color: #92400e; }
+        .signal-buy { background: #064e3b; color: #34d399; }
+        .signal-sell { background: #7f1d1d; color: #f87171; }
+        .signal-hold { background: #78350f; color: #fbbf24; }
 
-        /* ============================================
-           SECTION 5: STOCK CARDS GRID
-           ============================================ */
+        body.light-mode .signal-buy { background: #d1fae5; color: #065f46; }
+        body.light-mode .signal-sell { background: #fee2e2; color: #991b1b; }
+        body.light-mode .signal-hold { background: #fef3c7; color: #92400e; }
+
+        /* stock cards */
         .stocks-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -256,20 +299,26 @@
         }
 
         .stock-card {
-            background: #ffffff;
+            background: #1e293b;
             border-radius: 12px;
             padding: 1rem;
-            border: 2px solid #e5e7eb;
-            transition: all 0.2s;
+            border: 2px solid #334155;
         }
+
+        body.light-mode .stock-card {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+        }
+
+        .stock-card.up { border-color: #34d399; }
+        .stock-card.down { border-color: #f87171; }
+        body.light-mode .stock-card.up { border-color: #10b981; }
+        body.light-mode .stock-card.down { border-color: #ef4444; }
 
         .stock-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             transform: translateY(-2px);
         }
-
-        .stock-card.up { border-color: #10b981; }
-        .stock-card.down { border-color: #ef4444; }
 
         .stock-header {
             display: flex;
@@ -278,46 +327,31 @@
             margin-bottom: 0.5rem;
         }
 
-        .stock-name {
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
+        .stock-name { font-weight: 700; font-size: 1.1rem; }
+        .stock-symbol { color: #94a3b8; font-size: 0.8rem; }
+        body.light-mode .stock-symbol { color: #6b7280; }
 
-        .stock-symbol {
-            color: #6b7280;
-            font-size: 0.8rem;
-        }
+        .stock-price { font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0; }
+        .stock-change { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .stock-owned { font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.75rem; }
+        body.light-mode .stock-owned { color: #6b7280; }
 
-        .stock-price {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-
-        .stock-change {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .stock-owned {
-            font-size: 0.85rem;
-            color: #6b7280;
-            margin-bottom: 0.75rem;
-        }
-
-        .trade-row {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
+        .trade-row { display: flex; gap: 0.5rem; align-items: center; }
 
         .trade-row input {
             width: 60px;
             padding: 0.4rem;
             border-radius: 6px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #475569;
+            background: #334155;
+            color: #f1f5f9;
             text-align: center;
+        }
+
+        body.light-mode .trade-row input {
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #1f2937;
         }
 
         .trade-row button {
@@ -330,79 +364,51 @@
             font-size: 0.9rem;
         }
 
-        .btn-buy {
-            background: #10b981;
-            color: white;
-        }
+        .btn-buy { background: #10b981; color: white; }
+        .btn-sell { background: #ef4444; color: white; }
 
-        .btn-buy:hover {
-            background: #059669;
-        }
-
-        .btn-sell {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-sell:hover {
-            background: #dc2626;
-        }
-
-        /* ============================================
-           SECTION 6: TRANSACTIONS
-           ============================================ */
+        /* transactions */
         .transactions-section {
-            background: #ffffff;
+            background: #1e293b;
             border-radius: 12px;
             padding: 1.2rem;
+            border: 1px solid #334155;
+        }
+
+        body.light-mode .transactions-section {
+            background: #ffffff;
             border: 1px solid #e5e7eb;
         }
 
-        .transactions-section h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-        }
+        .transactions-section h2 { font-size: 1.2rem; margin-bottom: 1rem; }
 
         .txn-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0.6rem 1rem;
-            background: #f9fafb;
+            background: #334155;
             border-radius: 8px;
             margin-bottom: 0.4rem;
         }
 
-        .txn-action {
-            font-weight: 700;
-            margin-right: 0.5rem;
-        }
+        body.light-mode .txn-row { background: #f9fafb; }
 
-        .txn-buy { color: #10b981; }
-        .txn-sell { color: #ef4444; }
+        .txn-action { font-weight: 700; margin-right: 0.5rem; }
+        .txn-buy { color: #34d399; }
+        .txn-sell { color: #f87171; }
+        body.light-mode .txn-buy { color: #10b981; }
+        body.light-mode .txn-sell { color: #ef4444; }
 
-        .txn-right {
-            text-align: right;
-        }
+        .txn-right { text-align: right; }
+        .txn-amount { font-weight: 600; }
+        .txn-meta { color: #94a3b8; font-size: 0.8rem; }
+        body.light-mode .txn-meta { color: #9ca3af; }
 
-        .txn-amount {
-            font-weight: 600;
-        }
+        .empty-state { color: #94a3b8; font-style: italic; padding: 1rem; }
+        body.light-mode .empty-state { color: #9ca3af; }
 
-        .txn-meta {
-            color: #9ca3af;
-            font-size: 0.8rem;
-        }
-
-        .empty-state {
-            color: #9ca3af;
-            font-style: italic;
-            padding: 1rem;
-        }
-
-        /* ============================================
-           SECTION 7: TOAST NOTIFICATIONS
-           ============================================ */
+        /* toasts */
         .toast-container {
             position: fixed;
             top: 1rem;
@@ -418,15 +424,12 @@
             color: white;
             padding: 0.75rem 1.2rem;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             animation: slideIn 0.3s ease;
             max-width: 300px;
         }
 
-        .toast.alert {
-            background: #f59e0b;
-            color: #1f2937;
-        }
+        .toast.alert { background: #f59e0b; color: #1f2937; }
 
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
@@ -435,37 +438,43 @@
 
         footer {
             text-align: center;
-            color: #9ca3af;
+            color: #94a3b8;
             font-size: 0.85rem;
             padding: 2rem 1rem;
         }
 
+        body.light-mode footer { color: #9ca3af; }
+
         .divider {
             height: 1px;
-            background: #e5e7eb;
+            background: #334155;
             margin: 1.5rem 0;
         }
+
+        body.light-mode .divider { background: #e5e7eb; }
     </style>
 <base target="_blank">
 </head>
 <body>
 
-    <!-- toast notifications go here -->
     <div class="toast-container" id="toasts"></div>
 
     <header>
-        <div class="container">
-            <h1>InvestBot 🤖</h1>
-            <div class="subtitle">Indian stocks, paper trading, and fake money so u dont go broke</div>
+        <div class="container header-stuff">
+            <div>
+                <h1>InvestBot 🤖</h1>
+                <div class="subtitle">Indian stocks, paper trading, fake money</div>
+            </div>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">☀️ Light</button>
         </div>
     </header>
 
     <div class="container">
-        <!-- Portfolio Summary -->
+        <!-- portfolio summary -->
         <div class="summary-grid" id="summary"></div>
 
         <div class="layout">
-            <!-- Sidebar -->
+            <!-- sidebar -->
             <div class="sidebar">
                 <h2>⚙️ Settings</h2>
                 
@@ -474,7 +483,7 @@
                 <label>Demo Mode</label>
                 <select id="demoToggle" onchange="toggleDemo()">
                     <option value="true" selected>ON (fake data)</option>
-                    <option value="false">OFF (real data via yfinance... lol jk this is static html)</option>
+                    <option value="false">OFF (not possible in static HTML lol)</option>
                 </select>
 
                 <div class="divider"></div>
@@ -502,13 +511,12 @@
 
                 <div class="divider"></div>
 
-                <label style="color:#9ca3af; font-size:0.75rem;">Danger Zone</label>
+                <label style="color:#94a3b8; font-size:0.75rem;">Danger Zone</label>
                 <button class="danger" onclick="resetAll()">Reset Everything</button>
             </div>
 
-            <!-- Main Content -->
+            <!-- main -->
             <div class="main-content">
-                <!-- Chart Section -->
                 <div class="chart-section">
                     <h2>📊 Charts & Signals</h2>
                     <div class="chart-controls">
@@ -518,15 +526,16 @@
                         <button onclick="setTimeframe('1mo')" id="tf-1mo">1M</button>
                         <button onclick="setTimeframe('3mo')" id="tf-3mo">3M</button>
                     </div>
-                    <canvas id="priceChart" height="100"></canvas>
+                    <!-- chart wrapper keeps it at 300px -->
+                    <div class="chart-box">
+                        <canvas id="priceChart"></canvas>
+                    </div>
                     <div class="signals-grid" id="signals"></div>
                 </div>
 
-                <!-- Watchlist Grid -->
                 <h2 style="margin-bottom:1rem;">👀 Watchlist</h2>
                 <div class="stocks-grid" id="watchlist"></div>
 
-                <!-- Transactions -->
                 <div class="divider"></div>
                 <div class="transactions-section">
                     <h2>📝 Transaction History</h2>
@@ -535,16 +544,11 @@
             </div>
         </div>
 
-        <footer>InvestBot — built for learning. Not financial advice. dont sue me lol</footer>
+        <footer>InvestBot — built for learning. Not financial advice.</footer>
     </div>
 
     <script>
-        // ============================================
-        // SECTION 1: ALL THE DATA
-        // ============================================
-        // i moved everything to javascript. no python needed.
-        // localStorage saves stuff so it doesnt disappear on refresh
-
+        // all the stocks
         const ALL_STOCKS = {
             "TMCV.NS": "Tata Motors",
             "RELIANCE.NS": "Reliance Industries",
@@ -568,7 +572,7 @@
             "ASIANPAINT.NS": "Asian Paints"
         };
 
-        // base demo prices — i just googled these approx values
+        // fake prices i googled
         const DEMO_BASE = {
             "TMCV.NS": 445, "RELIANCE.NS": 1293, "TCS.NS": 2452,
             "INFY.NS": 1158, "HDFCBANK.NS": 739, "ZOMATO.NS": 280,
@@ -579,13 +583,13 @@
             "BAJFINANCE.NS": 6850, "ASIANPAINT.NS": 2350
         };
 
-        // fake "yesterday" prices — randomised a bit
+        // fake yesterday prices
         const DEMO_PREV = {};
         for (let sym in DEMO_BASE) {
             DEMO_PREV[sym] = Math.round(DEMO_BASE[sym] * (0.985 + Math.random() * 0.03) * 100) / 100;
         }
 
-        // default data if first time
+        // default data
         const DEFAULT_DATA = {
             cash: 100000,
             portfolio: {},
@@ -594,19 +598,16 @@
             watchlist: ["TMCV.NS", "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ZOMATO.NS"]
         };
 
-        // make sure every stock has 0 shares in portfolio
         for (let sym in ALL_STOCKS) {
             DEFAULT_DATA.portfolio[sym] = 0;
         }
 
-        // ============================================
-        // SECTION 2: LOAD & SAVE
-        // ============================================
+        // load/save with localStorage
         function loadData() {
             const saved = localStorage.getItem("investbot_data");
             if (saved) {
                 const data = JSON.parse(saved);
-                // make sure new stocks get added if i expand the list later
+                // add new stocks if i expand the list later
                 for (let sym in ALL_STOCKS) {
                     if (data.portfolio[sym] === undefined) data.portfolio[sym] = 0;
                 }
@@ -623,10 +624,28 @@
         let currentTimeframe = "1mo";
         let chartInstance = null;
 
-        // ============================================
-        // SECTION 3: DEMO PRICE GENERATOR
-        // ============================================
-        // this makes fake prices that wiggle around so it looks alive
+        // theme stuff
+        function setTheme(theme) {
+            if (theme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('themeBtn').textContent = '🌙 Dark';
+            } else {
+                document.body.classList.remove('light-mode');
+                document.getElementById('themeBtn').textContent = '☀️ Light';
+            }
+            localStorage.setItem('investbot_theme', theme);
+            updateChartColors();
+        }
+
+        function getTheme() {
+            return localStorage.getItem('investbot_theme') || 'dark';
+        }
+
+        function toggleTheme() {
+            setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+        }
+
+        // demo price generator
         function getDemoPrice(symbol) {
             const base = DEMO_BASE[symbol] || 500;
             const wiggle = (Math.random() - 0.5) * 3;
@@ -637,7 +656,6 @@
             return DEMO_PREV[symbol] || 500;
         }
 
-        // generate fake chart data
         function getDemoChart(symbol, period) {
             const base = DEMO_BASE[symbol] || 500;
             let points, noiseRange, startMult;
@@ -673,10 +691,25 @@
             return { labels, prices };
         }
 
-        // ============================================
-        // SECTION 4: RENDER EVERYTHING
-        // ============================================
+        function getChartColors() {
+            const isDark = getTheme() === 'dark';
+            return {
+                border: isDark ? '#94a3b8' : '#1f2937',
+                bg: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(31, 41, 55, 0.05)',
+                grid: isDark ? '#334155' : '#f3f4f6'
+            };
+        }
 
+        function updateChartColors() {
+            if (!chartInstance) return;
+            const c = getChartColors();
+            chartInstance.data.datasets[0].borderColor = c.border;
+            chartInstance.data.datasets[0].backgroundColor = c.bg;
+            chartInstance.options.scales.y.grid.color = c.grid;
+            chartInstance.update();
+        }
+
+        // render summary
         function renderSummary() {
             const prices = {};
             const yesterday = {};
@@ -686,7 +719,6 @@
                 yesterday[sym] = getDemoYesterday(sym);
             });
 
-            // also include owned stocks not in watchlist
             for (let sym in data.portfolio) {
                 if (data.portfolio[sym] > 0 && !prices[sym]) {
                     prices[sym] = getDemoPrice(sym);
@@ -750,7 +782,7 @@
                             <div class="stock-name">${ALL_STOCKS[sym]}</div>
                             <div class="stock-symbol">${sym}</div>
                         </div>
-                        <button onclick="removeFromWatchlist('${sym}')" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:#9ca3af;">×</button>
+                        <button onclick="removeFromWatchlist('${sym}')" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:#94a3b8;">×</button>
                     </div>
                     <div class="stock-price">₹${price.toFixed(2)}</div>
                     <div class="stock-change ${isUp ? 'green' : 'red'}">
@@ -808,7 +840,6 @@
         }
 
         function renderDropdowns() {
-            // populate add stock dropdown
             const addSelect = document.getElementById('addStockSelect');
             const notWatching = Object.keys(ALL_STOCKS).filter(s => !data.watchlist.includes(s));
             addSelect.innerHTML = notWatching.map(s => `<option value="${s}">${ALL_STOCKS[s]} (${s})</option>`).join('');
@@ -817,22 +848,16 @@
                 addSelect.disabled = true;
             }
 
-            // populate chart stock dropdown
             const chartSelect = document.getElementById('chartStock');
             chartSelect.innerHTML = data.watchlist.map(s => `<option value="${s}">${ALL_STOCKS[s]}</option>`).join('');
 
-            // populate alert stock dropdown
             const alertSelect = document.getElementById('alertStock');
             alertSelect.innerHTML = data.watchlist.map(s => `<option value="${s}">${ALL_STOCKS[s]}</option>`).join('');
         }
 
-        // ============================================
-        // SECTION 5: CHARTS (this was the hard part)
-        // ============================================
-
+        // chart stuff
         function setTimeframe(tf) {
             currentTimeframe = tf;
-            // update button styles
             ['1d', '1wk', '1mo', '3mo'].forEach(t => {
                 const btn = document.getElementById('tf-' + t);
                 if (btn) btn.className = t === tf ? 'active' : '';
@@ -843,6 +868,7 @@
         function renderChart() {
             const sym = document.getElementById('chartStock').value || data.watchlist[0];
             const chartData = getDemoChart(sym, currentTimeframe);
+            const c = getChartColors();
             
             const ctx = document.getElementById('priceChart').getContext('2d');
             
@@ -857,10 +883,10 @@
                     datasets: [{
                         label: 'Price',
                         data: chartData.prices,
-                        borderColor: '#1f2937',
-                        backgroundColor: 'rgba(31, 41, 55, 0.05)',
+                        borderColor: c.border,
+                        backgroundColor: c.bg,
                         fill: true,
-                        tension: 0.3,
+                        tension: 0, // STRAIGHT LINES - no curves
                         pointRadius: 0
                     }]
                 },
@@ -871,8 +897,14 @@
                         legend: { display: false }
                     },
                     scales: {
-                        x: { grid: { display: false } },
-                        y: { grid: { color: '#f3f4f6' } }
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: { 
+                            grid: { color: c.grid },
+                            ticks: { color: '#94a3b8' }
+                        }
                     }
                 }
             });
@@ -880,10 +912,7 @@
             renderSignals(sym, chartData.prices);
         }
 
-        // ============================================
-        // SECTION 6: TECHNICAL INDICATORS (math lol)
-        // ============================================
-
+        // technical indicators
         function movingAverage(prices, window) {
             const result = [];
             for (let i = 0; i < prices.length; i++) {
@@ -919,7 +948,6 @@
         }
 
         function computeMACD(prices) {
-            // simplified ema calculation
             function ema(prices, span) {
                 const k = 2 / (span + 1);
                 const result = [prices[0]];
@@ -934,9 +962,10 @@
             const macdLine = ema12.map((v, i) => v - ema26[i]);
             const signalLine = ema(macdLine, 9);
             
-            const latestMacd = macdLine[macdLine.length - 1];
-            const latestSignal = signalLine[signalLine.length - 1];
-            return { latestMacd, latestSignal };
+            return {
+                latestMacd: macdLine[macdLine.length - 1],
+                latestSignal: signalLine[signalLine.length - 1]
+            };
         }
 
         function computeBollinger(prices) {
@@ -1004,10 +1033,7 @@
             `;
         }
 
-        // ============================================
-        // SECTION 7: TRADING FUNCTIONS
-        // ============================================
-
+        // trading
         function buyStock(sym) {
             const qtyInput = document.getElementById(`buy-qty-${sym}`);
             const qty = parseInt(qtyInput.value) || 1;
@@ -1060,10 +1086,7 @@
             }
         }
 
-        // ============================================
-        // SECTION 8: WATCHLIST & ALERTS
-        // ============================================
-
+        // watchlist & alerts
         function addToWatchlist() {
             const select = document.getElementById('addStockSelect');
             if (select.disabled) return;
@@ -1133,10 +1156,7 @@
             }
         }
 
-        // ============================================
-        // SECTION 9: UTILITIES
-        // ============================================
-
+        // utilities
         function showToast(message, isAlert) {
             const container = document.getElementById('toasts');
             const toast = document.createElement('div');
@@ -1181,11 +1201,9 @@
             checkAlerts();
         }
 
-        // ============================================
-        // SECTION 10: START THE APP
-        // ============================================
-        // this runs when the page loads
+        // start
         document.addEventListener('DOMContentLoaded', function() {
+            setTheme(getTheme());
             renderAll();
         });
     </script>
