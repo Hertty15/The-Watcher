@@ -1,44 +1,49 @@
-# InvestBot 🤖
+# INVESTBOT_TERMINAL_v1.0
 
-hey! this is InvestBot — an investment dashboard i built that tracks Indian stocks, shows live prices, and even lets you paper trade (fake money so u dont go broke lol).
+ok so this is my stock tracker thing. i started with streamlit cuz thats what the tutorial said to use but then the ship people said "no streamlit allowed" so i had to rebuild the whole thing in plain html/js which was pain
 
 ## what it does
 
-- tracks 20 Indian stocks now (started with 6 but got carried away)
-- shows prices, daily change, and if the stock is up or down
-- chart with 1D / 1W / 1M / 3M views
-- some technical signal stuff:
-  - Golden Cross / Death Cross (20-day vs 50-day MA) — this one i actually understand
-  - RSI — tells if stock is overbought/oversold. idk how the math works but the numbers look right
-  - MACD — bullish/bearish thing. copied from a tutorial. seems legit
-  - Bollinger Bands — apparently if price goes outside the bands its "extreme". ok sure
-- buy/sell multiple shares at once (old version only let u buy 1 at a time which was annoying)
-- starts with Rs 1,00,000 fake cash (10k felt too low lol)
-- **saves ur portfolio to a json file** so it doesnt vanish when u refresh (this took me way too long to figure out)
-- transaction history so u can see every dumb trade u made
-- price alerts — set a target and it yells at u when the stock hits it
-- add/remove stocks from watchlist
-- reset button for when u blow all ur money on zomato
+tracks 20 indian stocks. shows prices (fake ones cuz yfinance breaks on github pages). you can buy/sell shares with fake money (₹1L to start). theres charts and some technical indicator stuff i copied from a tutorial (rsi, macd, bollinger, golden/death cross).
+
+## the yolo button
+
+i added a "buy everything" button cuz i thought it would be funny. it buys 1 of each stock, then 2, then 3, until ur broke. i called it yolo mode. my friend said its dumb but i kept it anyway.
 
 ## why i built this
 
-i wanted to learn how the stock market works and also learn Python. turns out getting stock data is WAY harder than i thought. i spent like 3 days just trying to get the API to work because every library was broken or blocked.
+i wanted to learn how stocks work without losing real money. also i got scammed by a stock tips whatsapp group in 2024 (not rly scammed just lost money on bad tips) so i decided to actually understand this stuff instead of listening to random people.
 
-the hardest part was figuring out that Tata Motors' Yahoo Finance symbol is "TMCV.NS" not "TATAMOTORS.NS" 😭 that took forever.
+## the painful parts
 
-this version is way bigger than my first one. i added json saving (so ur portfolio actually stays), price alerts, more stocks, and technical indicators. i still dont fully understand RSI and MACD but i copied the math from a tutorial and it seems to work lol.
+- **tata motors symbol**: i spent like 3 hours trying to figure out why `TATAMOTORS.NS` didnt work. turns out its `TMCV.NS` on yahoo finance. who named this stuff??
+- **streamlit got rejected**: i had a working streamlit app with a live link and everything. then they said "no streamlit, use github pages." so i had to throw away all the python and rewrite everything in javascript which i barely know
+- **the .ilox bug**: i kept typing `.ilox` instead of `.iloc` and couldnt figure out why my technical indicators were broken for like an hour. felt really dumb when i found it
+- **chart too tall**: the chart kept growing forever and i didnt know why. fix was just putting it in a div with fixed height lol
+- **dark mode**: i made it look like a crt terminal cuz i thought it looked cool. green phosphor + scanlines. theres also an amber mode if u click the button
 
-also i kept typing `.ilox` instead of `.iloc` and couldnt figure out why it was broken for like an hour. classic.
+## how to run
+
+just open `index.html` in a browser. or put it on github pages. no install needed cuz its just html.
+
+data saves to localStorage so it persists between refreshes (unless u clear ur browser data then its gone lol).
 
 ## live demo
 
-try it here without installing anything:  
-https://the-watcher-hqndp6epbu5s9rywgqvo8m.streamlit.app/
+https://yourusername.github.io/repo-name/
 
-**note:** the demo uses fake prices that wiggle around. also on the live link, your portfolio resets when u close the tab (cloud cant save files). download and run locally if u want it to actually remember your trades.
+## known issues
 
-## how to run it locally (for real live data)
+- prices are fake and randomly generated. they wiggle around to look alive
+- on the live demo link ur data saves to ur browser only. if u close the tab and come back on a different device its gone
+- mobile probably looks bad. i didnt rly test it
+- the rsi/macd math might be wrong. i copied it from stackoverflow and it seems to work but idk
 
-```bash
-pip install -r requirements.txt
-streamlit run watcher.py
+## disclaimer
+
+this is just for learning. not financial advice. if u lose real money thats on u.
+
+---
+
+built with too much coffee, stackoverflow, and a lot of frustration
+last updated: aug 2026
