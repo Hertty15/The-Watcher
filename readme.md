@@ -45,5 +45,4 @@ this is just for learning. not financial advice. if u lose real money thats on u
 
 ---
 
-built with too much coffee, stackoverflow, and a lot of frustration
 last updated: aug 2026
