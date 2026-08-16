@@ -164,7 +164,7 @@
     .buy-btn { background: #1a800d; color: #fff; }
     .sell-btn { background: #cc0000; color: #fff; }
 
-    /* Chart */
+    /* the line chart so its visible*/
     .chart-controls {
         display: flex;
         justify-content: space-between;
@@ -220,7 +220,7 @@
     .sig-sell { background: #ffebee; color: #cc0000; }
     .sig-hold { background: #f5f5f5; color: #666; }
 
-    /* Alerts */
+    /* alerts*/
     .alert-section {
         margin-bottom: 8px;
     }
@@ -255,7 +255,7 @@
         font-size: 9px;
     }
 
-    /* Transactions */
+    /*buy/sell things shown*/
     .txn-log {
         max-height: 200px;
         overflow-y: auto;
@@ -278,7 +278,7 @@
         padding: 10px;
     }
 
-    /* Controls */
+    /*controls and buttons*/
     .controls-row {
         display: flex;
         gap: 4px;
@@ -295,7 +295,7 @@
         flex: 1;
     }
 
-    /* Toasts */
+    /*some weird thing*/
     #toasts {
         position: fixed;
         top: 10px;
@@ -326,7 +326,7 @@
         to { transform: translateX(0); opacity: 1; }
     }
 
-    /* Theme */
+    /*themes*/
     body.amber {
         background-color: #1a1a1a;
     }
@@ -420,7 +420,7 @@
 <div id="toasts"></div>
 
 <div class="receipt">
-    <!-- HEADER -->
+    <!-- header-->
     <div style="text-align: center; margin-bottom: 10px;">
         <div style="font-size: 20px; font-weight: bold;">INVESTBOT LTD.</div>
         <div style="font-size: 11px;">GST: 27AABCU9603R1ZX</div>
@@ -430,7 +430,7 @@
 
     <div class="dashed"></div>
 
-    <!-- THEME & DEMO -->
+    <!--theme/ looks & demo-->
     <div class="controls-row">
         <button id="themeBtn" onclick="toggleTheme()">[PHOSPHOR: GREEN]</button>
         <select id="demoToggle" onchange="toggleDemo()">
@@ -442,19 +442,19 @@
 
     <div class="dashed"></div>
 
-    <!-- SUMMARY -->
+    <!--summary-->
     <div id="summary"></div>
 
     <div class="dashed"></div>
 
-    <!-- CRASH & YOLO -->
+    <!--the market crash thing and yolo-->
     <button class="crash-btn" onclick="triggerCrash()">⚠️ SIMULATE MARKET CRASH ⚠️</button>
     <button class="yolo-btn" onclick="yoloAllIn()">🎲 YOLO ALL-IN 🎲</button>
     <button class="reset-btn" onclick="resetAll()">[SYSTEM_PURGE]</button>
 
     <div class="dashed"></div>
 
-    <!-- CHART -->
+    <!--line chart thing so its nicely visible-->
     <h2>$ PRICE_CHART</h2>
     <div class="chart-controls">
         <select id="chartStock" onchange="renderChart()"></select>
@@ -472,7 +472,7 @@
 
     <div class="dashed"></div>
 
-    <!-- WATCHLIST -->
+    <!--watchlist-->
     <h2>$ WATCHLIST</h2>
     <div class="controls-row">
         <select id="addStockSelect"></select>
@@ -482,7 +482,7 @@
 
     <div class="dashed"></div>
 
-    <!-- ALERTS -->
+    <!--alerts-->
     <h2>$ ALERTS</h2>
     <div class="alert-section">
         <div class="alert-row">
@@ -499,7 +499,7 @@
 
     <div class="dashed"></div>
 
-    <!-- TRANSACTIONS -->
+    <!--buy/ sell log-->
     <h2>$ TRANSACTION_LOG</h2>
     <div id="transactions"></div>
 
@@ -513,9 +513,7 @@
 </div>
 
 <script>
-// ============================================
-// STOCK DATA
-// ============================================
+//stokc data
 const ALL_STOCKS = {
     "TMCV.NS": "Tata Motors",
     "RELIANCE.NS": "Reliance Industries",
@@ -566,9 +564,7 @@ for (let sym in ALL_STOCKS) {
     DEFAULT_DATA.portfolio[sym] = 0;
 }
 
-// ============================================
-// LOCALSTORAGE
-// ============================================
+//storing
 function loadData() {
     try {
         var saved = localStorage.getItem("investbot_data");
@@ -604,13 +600,11 @@ let chartInstance = null;
 let crashMode = false;
 let crashMultiplier = 1.0;
 
-// Price cache for UI consistency
+// cacheing price
 let priceCache = {};
 let cacheTimestamp = 0;
 
-// ============================================
-// THEME
-// ============================================
+//themse
 function setTheme(theme) {
     var btn = document.getElementById('themeBtn');
     if (theme == 'amber') {
@@ -632,9 +626,7 @@ function toggleTheme() {
     setTheme(getTheme() === 'green' ? 'amber' : 'green');
 }
 
-// ============================================
-// DEMO PRICES
-// ============================================
+//demo prices which r the only option anyway
 function getDemoPrice(symbol) {
     const now = Date.now();
     if (now - cacheTimestamp > 2000) {
@@ -711,9 +703,7 @@ function updateChartColors() {
     chartInstance.update();
 }
 
-// ============================================
-// RENDER
-// ============================================
+//render
 function renderSummary() {
     var prices = {};
     var yesterday = {};
@@ -862,9 +852,7 @@ function renderDropdowns() {
     alertSelect.innerHTML = data.watchlist.map(s => `<option value="${s}">${ALL_STOCKS[s]}</option>`).join('');
 }
 
-// ============================================
-// CHART
-// ============================================
+//line chart
 function setTimeframe(tf) {
     currentTimeframe = tf;
     ['1d', '1wk', '1mo', '3mo'].forEach(t => {
@@ -922,9 +910,7 @@ function renderChart() {
     renderSignals(sym, chartData.prices);
 }
 
-// ============================================
-// INDICATORS
-// ============================================
+//indicators
 function movingAverage(prices, window) {
     var result = [];
     for (let i = 0; i < prices.length; i++) {
@@ -1073,9 +1059,7 @@ function renderSignals(sym, prices) {
     `;
 }
 
-// ============================================
-// TRADING
-// ============================================
+//the acc trading part
 function buyStock(sym) {
     var qtyInput = document.getElementById(`buy-qty-${sym}`);
     var qty = parseInt(qtyInput.value) || 1;
@@ -1128,9 +1112,7 @@ function sellStock(sym) {
     }
 }
 
-// ============================================
-// YOLO ALL-IN
-// ============================================
+//the al in thing where it buys howmuchever with whatever money u hv
 function yoloAllIn() {
     if (data.cash <= 0) {
         showToast("[ERROR] BALANCE_ZERO", true);
@@ -1181,9 +1163,7 @@ function yoloAllIn() {
     showToast(`[YOLO] ${roundsDone} ROUNDS | ₹${Math.round(totalSpent).toLocaleString('en-IN')} | ${totalSharesBought} SHARES`, false);
 }
 
-// ============================================
-// WATCHLIST & ALERTS
-// ============================================
+//watchlist andalert
 function addToWatchlist() {
     var select = document.getElementById('addStockSelect');
     if (select.disabled) return;
@@ -1253,9 +1233,7 @@ function checkAlerts() {
     }
 }
 
-// ============================================
-// UTILS
-// ============================================
+// utils
 function showToast(message, isAlert) {
     var container = document.getElementById('toasts');
     var toast = document.createElement('div');
@@ -1299,9 +1277,7 @@ function renderAll() {
     checkAlerts();
 }
 
-// ============================================
-// MARKET CRASH
-// ============================================
+//market crash where eeverything goes down for a lil while
 function triggerCrash() {
     if (crashMode) return;
 
@@ -1331,9 +1307,7 @@ function triggerCrash() {
     }, 5000);
 }
 
-// ============================================
-// INIT
-// ============================================
+//init
 document.addEventListener('DOMContentLoaded', function() {
     console.log("INVESTBOT v1.0 TERMINAL BOOT");
     console.log("loading portfolio...");
