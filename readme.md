@@ -30,7 +30,7 @@ data saves to localStorage so it persists between refreshes (unless u clear ur b
 
 ## live demo
 
-https://yourusername.github.io/repo-name/
+(https://hertty15.github.io/The-Watcher/)
 
 ## known issues
 
